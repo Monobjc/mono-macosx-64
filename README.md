@@ -10,7 +10,7 @@ This tool builds a full Universal 32/64 bits Mono runtime in a smart way:
 - it install a full Universal 32 bits Mono runtime
 - it merges the minimal 64 bits Mono runtime into the Universal 32 bits one
 
-<img src="https://github.com/letiemble/Mono-Sixty-Four/blob/master/overview.png" alt="How it works" title="How it works" align="center" />
+<img src="https://github.com/letiemble/Mono-Sixty-Four/raw/master/overview.png" alt="How it works" title="How it works" align="center" />
 
 The result is a usable Universal 32/64 bits Mono runtime where all the Mono binaries 
 supports three architecture.
