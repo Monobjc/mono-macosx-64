@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ExecutablePath</key>
+	<string>/Library/Frameworks/Mono.framework/Versions/Current/bin/mono.bin</string>
+	<key>PreferredOrder</key>
+	<array>
+		<string>i386</string>
+		<string>x86_64</string>
+		<string>ppc</string>
+	</array>
+	<key>PropertyListVersion</key>
+	<string>1.0</string>
+</dict>
+</plist>
