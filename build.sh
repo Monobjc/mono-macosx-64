@@ -8,8 +8,8 @@
 #
 
 COMMAND=$1
-VERSION=2.10
-RELEASE=5
+VERSION=2.10.1
+RELEASE=3
 PACKAGE="$VERSION"_"$RELEASE"
 
 BASE_DIR=`pwd`
@@ -43,15 +43,15 @@ function fetch {
 	
 	file="mono-$VERSION.tar.bz2"
 	if [ ! -f $file ]; then
-		curl "http://ftp.novell.com/pub/mono/sources/mono/$file" -O $file
+		curl "http://ftp.novell.com/pub/mono/sources/mono/$file" > $file
 	fi
 	file="MonoFramework-$PACKAGE.macos10.novell.universal.dmg"
 	if [ ! -f $file ]; then
-		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" -O $file
+		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" > $file
 	fi
 	file="MonoFramework-CSDK-$PACKAGE.macos10.novell.universal.dmg"
 	if [ ! -f $file ]; then
-		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" -O $file
+		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" > $file
 	fi
 	
 	cd "$BASE_DIR"
