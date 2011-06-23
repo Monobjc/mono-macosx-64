@@ -8,8 +8,8 @@
 #
 
 COMMAND=$1
-VERSION=2.10.1
-RELEASE=3
+VERSION=2.10.2
+RELEASE=5.3
 PACKAGE="$VERSION"_"$RELEASE"
 
 BASE_DIR=`pwd`
@@ -45,11 +45,7 @@ function fetch {
 	if [ ! -f $file ]; then
 		curl "http://ftp.novell.com/pub/mono/sources/mono/$file" > $file
 	fi
-	file="MonoFramework-$PACKAGE.macos10.novell.universal.dmg"
-	if [ ! -f $file ]; then
-		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" > $file
-	fi
-	file="MonoFramework-CSDK-$PACKAGE.macos10.novell.universal.dmg"
+	file="MonoFramework-MDK-$PACKAGE.macos10.novell.universal.dmg"
 	if [ ! -f $file ]; then
 		curl "http://ftp.novell.com/pub/mono/archive/$VERSION/macos-10-universal/$RELEASE/$file" > $file
 	fi
@@ -98,20 +94,13 @@ function copy {
 	done
 }
 
-# Install the runtime and the CSDK
+# Install the MDK
 # --------------------------------------------------------------------------------
 function install {
 	cd "$FILES_DIR"
-	volume="/Volumes/MonoFramework-$VERSION"
+	volume="/Volumes/MonoFramework-MDK-$VERSION"
 	hdiutil detach "$volume"
-	file="MonoFramework-$PACKAGE.macos10.novell.universal"
-	hdiutil attach "$file.dmg"
-	sudo installer -pkg "$volume/$file.pkg" -target "/"
-	hdiutil detach "$volume"
-	
-	volume="/Volumes/MonoFramework-CSDK-$VERSION"
-	hdiutil detach "$volume"
-	file="MonoFramework-CSDK-$PACKAGE.macos10.novell.universal"
+	file="MonoFramework-MDK-$PACKAGE.macos10.novell.universal"
 	hdiutil attach "$file.dmg"
 	sudo installer -pkg "$volume/$file.pkg" -target "/"
 	hdiutil detach "$volume"
