@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #
-# Build a Universal 32/64 bist Mono runtime
+# Build a 32/64 bits Mono runtime
 #
 # Copyright (C) 2011 Laurent Etiemble
-# This script is put in the public domain.
+# This script is in the public domain.
 #
 
 COMMAND=$1
-VERSION=2.10.4
+VERSION=2.10.5
 RELEASE=0
 PACKAGE="$VERSION"_"$RELEASE"
 
@@ -100,7 +100,7 @@ function install {
 	cd "$FILES_DIR"
 	volume="/Volumes/MonoFramework-MDK-$VERSION"
 	hdiutil detach "$volume"
-	file="MonoFramework-MDK-$PACKAGE.macos10.novell.universal"
+    file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86.dmg"
 	hdiutil attach "$file.dmg"
 	sudo installer -pkg "$volume/$file.pkg" -target "/"
 	hdiutil detach "$volume"
@@ -148,8 +148,18 @@ case "$COMMAND" in
 		merge
 		;;
 
+    all)
+        clean
+        fetch
+        unarchive
+        build
+        copy
+        install
+        merge
+        ;;
+
     *)
-		echo "usage: $0 (clean|fetch|unarchive|build|copy|install|merge)"
+		echo "usage: $0 (all|clean|fetch|unarchive|build|copy|install|merge)"
         exit 1
         ;;
 
