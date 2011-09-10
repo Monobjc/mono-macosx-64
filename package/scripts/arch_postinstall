@@ -1,0 +1,10 @@
+#!/bin/sh -x
+
+FW=/Library/Frameworks/Mono.framework
+FW_CURRENT=${FW}/Versions/Current
+
+if [ -d ${FW}/Commands ]; then
+	cd ${FW}/Commands
+	mv mono mono.bin
+	ln -s /usr/bin/arch mono
+fi

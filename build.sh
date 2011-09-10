@@ -8,24 +8,36 @@
 #
 
 COMMAND=$1
-VERSION=2.10.5
-RELEASE=0
+VERSION=$2
+RELEASE=$3
+
+if [ "x$VERSION" == "x" ]; then
+    VERSION=2.10.5
+fi
+if [ "x$RELEASE" == "x" ]; then
+    VERSION=0
+fi
+
 PACKAGE="$VERSION"_"$RELEASE"
 
 BASE_DIR=`pwd`
 MONO_DIR=mono-$VERSION
 
-FILES_DIR="files"
-SOURCES_DIR="sources"
 BINARIES_DIR="binaries"
+CONTENT_DIR="content"
+DMG_DIR="dmg"
+FILES_DIR="files"
 MERGE_DIR="merge"
+PACKAGE_DIR="package"
+SOURCES_DIR="sources"
 
-MONO_PREFIX=/Library/Frameworks/Mono.framework/Versions/$VERSION
+MONO_FRAMEWORK="/Library/Frameworks/Mono.framework"
+MONO_PREFIX="$MONO_FRAMEWORK/Versions/$VERSION"
 
-mkdir -p "$FILES_DIR"
-mkdir -p "$SOURCES_DIR"
 mkdir -p "$BINARIES_DIR"
+mkdir -p "$FILES_DIR"
 mkdir -p "$MERGE_DIR"
+mkdir -p "$SOURCES_DIR"
 
 # Clean any prior Mono installation
 # --------------------------------------------------------------------------------
@@ -100,7 +112,7 @@ function install {
 	cd "$FILES_DIR"
 	volume="/Volumes/MonoFramework-MDK-$VERSION"
 	hdiutil detach "$volume"
-    file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86.dmg"
+    file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86"
 	hdiutil attach "$file.dmg"
 	sudo installer -pkg "$volume/$file.pkg" -target "/"
 	hdiutil detach "$volume"
@@ -120,6 +132,54 @@ function merge {
 		lipo -create "$MONO_PREFIX/$dir/$name" "$BINARIES_DIR/$dir/$name" -output "$MERGE_DIR/$dir/$name"
 		sudo cp "$MERGE_DIR/$dir/$name" "$MONO_PREFIX/$dir/$name"
 	done
+}
+
+# Package the Mono framework
+# --------------------------------------------------------------------------------
+function package {
+    rm -Rf "$CONTENT_DIR"
+    mkdir -p "$CONTENT_DIR/Versions/$VERSION"
+    cp -R "$MONO_PREFIX/" "$CONTENT_DIR/Versions/$VERSION/"
+
+    # Create the symlinks
+    cd "$CONTENT_DIR"
+    ln -s "Versions/Current/bin" "Commands"
+    ln -s "Versions/Current/include" "Headers"
+    ln -s "Versions/Current" "Home"
+    ln -s "Versions/Current/lib" "Libraries"
+    ln -s "Libraries/libmono-2.0.dylib" "Mono"
+    ln -s "Versions/Current/Resources" "Resources"
+    cd -
+    cd "$CONTENT_DIR/Versions"
+    ln -s "$VERSION" "Current"
+    cd -
+
+    # Create the installer
+    cd "$PACKAGE_DIR"
+    PMDOC="MonoMDK-$PACKAGE.pmdoc"
+    mkdir -p "$PMDOC"
+    cat "ReadMe.rtf" | sed -e "s/@@MONO_VERSION_RELEASE@@/$PACKAGE/g" > "ReadMe-$PACKAGE.rtf"
+    cat "Welcome.rtf" | sed -e "s/@@MONO_VERSION_RELEASE@@/$PACKAGE/g" > "Welcome-$PACKAGE.rtf"
+    FILES=`ls MonoMDK.pmdoc`;
+    for file in $FILES; do
+        cat "MonoMDK.pmdoc/$file" | sed \
+        -e "s/@@MONO_VERSION_RELEASE@@/$PACKAGE/g" \
+        -e "s/>ReadMe.rtf</>ReadMe-$PACKAGE.rtf</g" \
+        -e "s/>Welcome.rtf</>Welcome-$PACKAGE.rtf</g" \
+        > "$PMDOC/$file"
+    done
+    cd -
+
+    rm -Rf "$DMG_DIR"
+    mkdir -p "$DMG_DIR"
+    file="MonoFramework-MDK-$PACKAGE.macos10.monobjc.universal"
+
+    # Create the installer package
+    /Developer/usr/bin/packagemaker --verbose --doc "$PACKAGE_DIR/$PMDOC" -o "$DMG_DIR/$file.pkg"
+
+    # Create the disk image
+    rm -Rf "$FILES_DIR/$file.dmg"
+    hdiutil create "$FILES_DIR/$file.dmg" -volname "MonoFramework-MDK-$VERSION" -fs HFS+ -srcfolder "$DMG_DIR"
 }
 
 # Main entry point
@@ -148,6 +208,10 @@ case "$COMMAND" in
 		merge
 		;;
 
+    package)
+        package
+        ;;
+
     all)
         clean
         fetch
@@ -156,10 +220,11 @@ case "$COMMAND" in
         copy
         install
         merge
+        package
         ;;
 
     *)
-		echo "usage: $0 (all|clean|fetch|unarchive|build|copy|install|merge)"
+		echo "usage: $0 (all|clean|fetch|unarchive|build|copy|install|merge|package) [version] [build]"
         exit 1
         ;;
 
