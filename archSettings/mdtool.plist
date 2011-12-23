@@ -8,7 +8,6 @@
 	<array>
 		<string>i386</string>
 		<string>x86_64</string>
-		<string>ppc</string>
 	</array>
 	<key>PropertyListVersion</key>
 	<string>1.0</string>
