@@ -12,10 +12,10 @@ VERSION=$2
 RELEASE=$3
 
 if [ "x$VERSION" == "x" ]; then
-    VERSION=2.10.5
+    VERSION=2.10.8
 fi
 if [ "x$RELEASE" == "x" ]; then
-    VERSION=0
+    RELEASE=3
 fi
 
 PACKAGE="$VERSION"_"$RELEASE"
@@ -39,6 +39,16 @@ mkdir -p "$FILES_DIR"
 mkdir -p "$MERGE_DIR"
 mkdir -p "$SOURCES_DIR"
 
+# Clobber all uneeded folder
+# --------------------------------------------------------------------------------
+function clobber {
+	rm -Rf binaries
+	rm -Rf content
+	rm -Rf dmg
+	rm -Rf merge
+	echo "Done"
+}
+
 # Clean any prior Mono installation
 # --------------------------------------------------------------------------------
 function clean {
@@ -53,7 +63,7 @@ function fetch {
 	echo "Fetching files..."
 	cd "$FILES_DIR"
 	
-	file="mono-$VERSION.tar.bz2"
+	file="mono-$VERSION.tar.gz"
 	if [ ! -f $file ]; then
 		curl "http://download.mono-project.com/sources/mono/$file" > $file
 	fi
@@ -72,7 +82,7 @@ function unarchive {
 	echo "Unarchiving..."
 	cd "$SOURCES_DIR"
 	if [ ! -d "$MONO_DIR" ]; then
-		tar -jxf "../$FILES_DIR/$MONO_DIR.tar.bz2"
+		tar -zxf "../$FILES_DIR/$MONO_DIR.tar.gz"
 	fi
 	cd "$BASE_DIR"
 	echo "Done"
@@ -83,9 +93,28 @@ function unarchive {
 function build {
 	echo "Building..."
 	cd "$SOURCES_DIR/$MONO_DIR"
-	./configure --prefix "$MONO_PREFIX" --with-glib=embedded --disable-nls --disable-mcs-build --host=x86_64-apple-darwin10
+	
+	#
+	# Uncomment the following if you want to override flags
+	#
+	# DARWIN_FLAGS="-arch x86_64 -D_XOPEN_SOURCE -mmacosx-version-min=10.5"
+	# DARWIN_FLAGS="-arch x86_64 -mmacosx-version-min=10.6"
+	# DARWIN_FLAGS="-arch x86_64 -mmacosx-version-min=10.5"
+	#
+	# CPPFLAGS="$CPPFLAGS $DARWIN_FLAGS" \
+	# CFLAGS="$CFLAGS $DARWIN_FLAGS" \
+	# CXXFLAGS="$CXXFLAGS $DARWIN_FLAGS" \
+	# CCASFLAGS="$CCASFLAGS $DARWIN_FLAGS" \
+	# CPPFLAGS_FOR_LIBGC="$CPPFLAGS_FOR_LIBGC $DARWIN_FLAGS" \
+	# CFLAGS_FOR_LIBGC="$CFLAGS_FOR_LIBGC $DARWIN_FLAGS" \
+	# CPPFLAGS_FOR_EGLIB="$CPPFLAGS_FOR_EGLIB $DARWIN_FLAGS" \
+	# CFLAGS_FOR_EGLIB="$CFLAGS_FOR_EGLIB $DARWIN_FLAGS" \
+	#	
+	./configure --prefix "$MONO_PREFIX" --disable-nls --disable-mcs-build --host=x86_64-apple-darwin
+	
 	make
 	sudo make install
+	
 	cd "$BASE_DIR"
 }
 
@@ -186,6 +215,9 @@ function package {
 # --------------------------------------------------------------------------------
 case "$COMMAND" in
 
+	clobber)
+		clobber
+		;;
 	clean)
 		clean
 		;;
@@ -224,7 +256,7 @@ case "$COMMAND" in
         ;;
 
     *)
-		echo "usage: $0 (all|clean|fetch|unarchive|build|copy|install|merge|package) [version] [build]"
+		echo "usage: $0 (all|clobber|clean|fetch|unarchive|build|copy|install|merge|package) [version] [build]"
         exit 1
         ;;
 
