@@ -12,13 +12,18 @@ VERSION=$2
 RELEASE=$3
 
 if [ "x$VERSION" == "x" ]; then
-    VERSION=2.10.8
+    VERSION=2.11
 fi
 if [ "x$RELEASE" == "x" ]; then
-    RELEASE=3
+    RELEASE=0
 fi
 
-PACKAGE="$VERSION"_"$RELEASE"
+if [ "x$RELEASE" == "x0" ]; then
+	PACKAGE="$VERSION"
+	VERSION="$VERSION.0"
+else
+	PACKAGE="$VERSION"_"$RELEASE"
+fi
 
 BASE_DIR=`pwd`
 MONO_DIR=mono-$VERSION
@@ -63,13 +68,23 @@ function fetch {
 	echo "Fetching files..."
 	cd "$FILES_DIR"
 	
-	file="mono-$VERSION.tar.gz"
+	file="mono-$VERSION.tar.bz2"
+	url="http://download.mono-project.com/sources/mono/$file"
+	echo "Probing $file ($url)"
 	if [ ! -f $file ]; then
-		curl "http://download.mono-project.com/sources/mono/$file" > $file
+		curl "$url" > $file
 	fi
+	
 	file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86.dmg"
+	if [ "x$RELEASE" == "x0" ]; then
+		url="http://download.mono-project.com/archive/$VERSION/macos-10-x86/$file"
+	else
+		url="http://download.mono-project.com/archive/$VERSION/macos-10-x86/$RELEASE/$file"
+	fi
+	
+	echo "Probing $file ($url)"
 	if [ ! -f $file ]; then
-		curl "http://download.mono-project.com/archive/$VERSION/macos-10-x86/$RELEASE/$file" > $file
+		curl "$url" > $file
 	fi
 	
 	cd "$BASE_DIR"
