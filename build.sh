@@ -97,7 +97,7 @@ function unarchive {
 	echo "Unarchiving..."
 	cd "$SOURCES_DIR"
 	if [ ! -d "$MONO_DIR" ]; then
-		tar -zxf "../$FILES_DIR/$MONO_DIR.tar.gz"
+		tar -zxf "../$FILES_DIR/$MONO_DIR.tar.bz2"
 	fi
 	cd "$BASE_DIR"
 	echo "Done"
