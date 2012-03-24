@@ -20,13 +20,14 @@ fi
 
 if [ "x$RELEASE" == "x0" ]; then
 	PACKAGE="$VERSION"
-	VERSION="$VERSION.0"
+	FULLVERSION="$VERSION.0"
 else
 	PACKAGE="$VERSION"_"$RELEASE"
+	FULLVERSION="$VERSION"
 fi
 
 BASE_DIR=`pwd`
-MONO_DIR=mono-$VERSION
+MONO_DIR="mono-$VERSION"
 
 BINARIES_DIR="binaries"
 CONTENT_DIR="content"
@@ -68,7 +69,7 @@ function fetch {
 	echo "Fetching files..."
 	cd "$FILES_DIR"
 	
-	file="mono-$VERSION.tar.bz2"
+	file="mono-$FULLVERSION.tar.bz2"
 	url="http://download.mono-project.com/sources/mono/$file"
 	echo "Probing $file ($url)"
 	if [ ! -f $file ]; then
@@ -77,9 +78,9 @@ function fetch {
 	
 	file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86.dmg"
 	if [ "x$RELEASE" == "x0" ]; then
-		url="http://download.mono-project.com/archive/$VERSION/macos-10-x86/$file"
+		url="http://download.mono-project.com/archive/$FULLVERSION/macos-10-x86/$file"
 	else
-		url="http://download.mono-project.com/archive/$VERSION/macos-10-x86/$RELEASE/$file"
+		url="http://download.mono-project.com/archive/$FULLVERSION/macos-10-x86/$RELEASE/$file"
 	fi
 	
 	echo "Probing $file ($url)"
@@ -97,7 +98,7 @@ function unarchive {
 	echo "Unarchiving..."
 	cd "$SOURCES_DIR"
 	if [ ! -d "$MONO_DIR" ]; then
-		tar -zxf "../$FILES_DIR/$MONO_DIR.tar.bz2"
+		tar -zxf "../$FILES_DIR/mono-$FULLVERSION.tar.bz2"
 	fi
 	cd "$BASE_DIR"
 	echo "Done"
