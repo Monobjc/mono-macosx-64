@@ -156,10 +156,13 @@ function copy {
 function install {
 	cd "$FILES_DIR"
 	volume="/Volumes/MonoFramework-MDK-$VERSION"
-	if [ ! -d "$volume" ]; then
-		volume="/Volumes/Mono Framework MDK $VERSION"
-	fi
-	
+    if [ ! -d "$volume" ]; then
+        volume="/Volumes/MonoFramework MDK $VERSION"
+    fi
+    if [ ! -d "$volume" ]; then
+        volume="/Volumes/Mono Framework MDK $VERSION"
+    fi
+
 	hdiutil detach "$volume"
     file="MonoFramework-MDK-$PACKAGE.macos10.xamarin.x86"
 	hdiutil attach "$file.dmg"
