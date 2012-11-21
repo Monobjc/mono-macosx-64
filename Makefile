@@ -11,7 +11,7 @@ VERSION?=3.0.1
 RELEASE?=0
 KIND?=MDK
 BUILDER?=monobjc
-CERTIFICATE?=
+CERTIFICATE?=Developer ID Installer: Laurent Etiemble
 
 ## --------------------
 ## Variables
