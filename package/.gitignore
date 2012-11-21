@@ -1,4 +1,5 @@
 MonoMDK-*.pmdoc/
-ReadMe-*.rtf
-Welcome-*.rtf
+*.rtf
+postflight
+whitelist.txt
 

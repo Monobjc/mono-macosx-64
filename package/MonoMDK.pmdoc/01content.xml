@@ -1,1 +1,29 @@
-<pkgref spec="1.12" uuid="00C58FA1-B7F0-4B0C-88E4-762D59254C73"><config><identifier>com.ximian.MonoFrameworkMDK.pkg</identifier><version>@@MONO_VERSION_RELEASE@@</version><description></description><post-install type="none"/><requireAuthorization/><installFrom relative="true">../content</installFrom><installTo mod="true">/Library/Frameworks/Mono.framework</installTo><flags><followSymbolicLinks/></flags><packageStore type="internal"></packageStore><mod>installTo.path</mod><mod>installTo</mod><mod>installTo.isAbsoluteType</mod><mod>scripts.scriptsDirectoryPath.isRelativeType</mod><mod>identifier</mod><mod>parent</mod><mod>scripts.postinstall.path</mod><mod>version</mod><mod>installFrom.isRelativeType</mod><mod>scripts.postinstall.isRelativeType</mod></config><scripts><postinstall relative="true" mod="true">scripts/mono_postinstall</postinstall><scripts-dir relative="true" mod="true">scripts</scripts-dir></scripts></pkgref>
+<?xml version="1.0"?>
+<pkgref spec="1.12" uuid="00C58FA1-B7F0-4B0C-88E4-762D59254C73">
+  <config>
+    <identifier>com.ximian.MonoFrameworkMDK.pkg</identifier>
+    <version>@@MONO_VERSION_RELEASE@@</version>
+    <description/>
+    <post-install type="none"/>
+    <requireAuthorization/>
+    <installFrom relative="true">../work/content</installFrom>
+    <installTo mod="true">/Library/Frameworks/Mono.framework</installTo>
+    <flags>
+      <followSymbolicLinks/>
+    </flags>
+    <packageStore type="internal"/>
+    <mod>installTo.path</mod>
+    <mod>installTo</mod>
+    <mod>installTo.isAbsoluteType</mod>
+    <mod>scripts.scriptsDirectoryPath.isRelativeType</mod>
+    <mod>identifier</mod>
+    <mod>parent</mod>
+    <mod>scripts.postinstall.path</mod>
+    <mod>version</mod>
+    <mod>installFrom.isRelativeType</mod>
+    <mod>scripts.postinstall.isRelativeType</mod>
+  </config>
+  <scripts>
+    <postinstall relative="true" mod="true">postflight</postinstall>
+  </scripts>
+</pkgref>
