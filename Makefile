@@ -2,8 +2,9 @@
 ##                                                                           ##
 ## Build a 32/64 bits Mono runtime                                           ##
 ##                                                                           ##
-## Created by Laurent Etiemble                                               ##
 ## This script is in the public domain.                                      ##
+## Creator     : Laurent Etiemble                                            ##
+## Contributors: Dimitar Dobrev                                              ##
 ##                                                                           ##
 ###############################################################################
 
@@ -67,7 +68,6 @@ MONO_PACKAGE_RESOURCES=License.rtf postflight Readme.rtf Welcome.rtf whitelist.t
 UNIVERSAL_PACKAGE_TEMPLATE=$(PACKAGE_DIR)/MonoMDK.pmdoc
 UNIVERSAL_PACKAGE_TEMPLATE_FILES=$(wildcard $(UNIVERSAL_PACKAGE_TEMPLATE)/*.xml)
 UNIVERSAL_PACKAGE_DESCRIPTOR=$(PACKAGE_DIR)/MonoMDK-$(VERSION).pmdoc
-UNIVERSAL_PACKAGE_ARCH_SCRIPT=$(PACKAGE_DIR)/setup-arch
 UNIVERSAL_PACKAGE_FILE=$(subst xamarin.x86,$(BUILDER).universal,$(MONO_PACKAGE_FILE))
 UNIVERSAL_PACKAGE_PATH=$(DMG_DIR)/$(UNIVERSAL_PACKAGE_FILE)
 UNIVERSAL_INSTALLER_FILE=$(subst xamarin.x86,$(BUILDER).universal,$(MONO_INSTALLER_FILE))
