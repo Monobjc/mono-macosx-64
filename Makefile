@@ -22,11 +22,12 @@ CERTIFICATE?=Developer ID Installer: Laurent Etiemble
 PACKAGE_DIR=package
 FILES_DIR=files
 WORK_DIR=work
+SCRIPT_DIR=$(PACKAGE_DIR)/scripts
 BINARIES_DIR=$(WORK_DIR)/binaries
 CONTENT_DIR=$(WORK_DIR)/content
 MERGE_DIR=$(WORK_DIR)/merge
 DMG_DIR=$(WORK_DIR)/dmg
-WORK_DIRS=$(BINARIES_DIR) $(MERGE_DIR) $(DMG_DIR)
+WORK_DIRS=$(BINARIES_DIR) $(MERGE_DIR) $(DMG_DIR) $(SCRIPT_DIR)
 ALL_DIRS=$(FILES_DIR) $(WORK_DIRS)
 
 # Build Markers
@@ -183,6 +184,9 @@ build-package:
 	for i in $(MONO_PACKAGE_RESOURCES); do \
 		cp -f "$(MONO_PACKAGE_PATH)/Contents/Resources/$$i" "$(PACKAGE_DIR)/$$i"; \
 	done;
+	mkdir -p "$(SCRIPT_DIR)"
+	cp -f "$(PACKAGE_DIR)/postflight" "$(SCRIPT_DIR)/"
+	cp -f "$(PACKAGE_DIR)/whitelist.txt" "$(SCRIPT_DIR)/"
 	
 	# Link to the framework content
 	rm -Rf "$(CONTENT_DIR)"
