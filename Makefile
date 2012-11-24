@@ -202,7 +202,7 @@ build-package:
 	done;
 	
 	# Build the installer
-	"/Developer/Applications/PackageMaker.app/Contents/MacOS/PackageMaker" --verbose --doc "$(UNIVERSAL_PACKAGE_DESCRIPTOR)" -o "$(UNIVERSAL_PACKAGE_PATH)"
+	"/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker" --verbose --doc "$(UNIVERSAL_PACKAGE_DESCRIPTOR)" -o "$(UNIVERSAL_PACKAGE_PATH)"
 	
 	# Create the disk image
 	rm -Rf "$(UNIVERSAL_INSTALLER_PATH)"
