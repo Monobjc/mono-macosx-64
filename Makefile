@@ -8,7 +8,7 @@
 ##                                                                           ##
 ###############################################################################
 
-VERSION?=3.0.1
+VERSION?=3.2.0
 RELEASE?=0
 KIND?=MDK
 BUILDER?=monobjc
@@ -26,8 +26,8 @@ SCRIPT_DIR=$(PACKAGE_DIR)/scripts
 BINARIES_DIR=$(WORK_DIR)/binaries
 CONTENT_DIR=$(WORK_DIR)/content
 MERGE_DIR=$(WORK_DIR)/merge
-DMG_DIR=$(WORK_DIR)/dmg
-WORK_DIRS=$(BINARIES_DIR) $(MERGE_DIR) $(DMG_DIR) $(SCRIPT_DIR)
+EXPAND_DIR=$(WORK_DIR)/temp
+WORK_DIRS=$(SCRIPT_DIR) $(BINARIES_DIR) $(MERGE_DIR)
 ALL_DIRS=$(FILES_DIR) $(WORK_DIRS)
 
 # Build Markers
@@ -50,45 +50,24 @@ MONO_ARCHIVE_FILE=mono-$(VERSION).tar.bz2
 MONO_ARCHIVE_URL=$(MONO_URL)/sources/mono/$(MONO_ARCHIVE_FILE)
 MONO_ARCHIVE_PATH=$(FILES_DIR)/$(MONO_ARCHIVE_FILE)
 ifeq ($(RELEASE),0)
-	MONO_INSTALLER_FILE=MonoFramework-$(KIND)-$(VERSION).macos10.xamarin.x86.dmg
-	MONO_INSTALLER_URL=$(MONO_URL)/archive/$(VERSION)/macos-10-x86/$(MONO_INSTALLER_FILE)
+	MONO_PACKAGE_FILE=MonoFramework-$(KIND)-$(VERSION).macos10.xamarin.x86.pkg
+	MONO_PACKAGE_URL=$(MONO_URL)/archive/$(VERSION)/macos-10-x86/$(MONO_PACKAGE_FILE)
 else
-	MONO_INSTALLER_FILE=MonoFramework-$(KIND)-$(VERSION)_$(RELEASE).macos10.xamarin.x86.dmg
-	MONO_INSTALLER_URL=$(MONO_URL)/archive/$(VERSION)/macos-10-x86/$(RELEASE)/$(MONO_INSTALLER_FILE)
+	MONO_PACKAGE_FILE=MonoFramework-$(KIND)-$(VERSION)_$(RELEASE).macos10.xamarin.x86.pkg
+	MONO_PACKAGE_URL=$(MONO_URL)/archive/$(VERSION)/macos-10-x86/$(MONO_PACKAGE_FILE)
 endif
-MONO_INSTALLER_PATH=$(FILES_DIR)/$(MONO_INSTALLER_FILE)
 MONO_SOURCE_DIR=$(FILES_DIR)/mono-$(VERSION)
 
 # Mono installer
-MONO_VOLUME_DIR=/Volumes/Mono Framework $(KIND) $(VERSION)
-MONO_PACKAGE_FILE=$(subst .dmg,.pkg,$(MONO_INSTALLER_FILE))
-MONO_PACKAGE_PATH=$(MONO_VOLUME_DIR)/$(MONO_PACKAGE_FILE)
-MONO_PACKAGE_RESOURCES=License.rtf postflight Readme.rtf Welcome.rtf whitelist.txt
+MONO_PACKAGE_PATH=$(FILES_DIR)/$(MONO_PACKAGE_FILE)
+MONO_PACKAGE_RESOURCES=License.rtf postinstall ReadMe.rtf Welcome.rtf whitelist.txt
 
 # Universal content, installer and package
 UNIVERSAL_PACKAGE_TEMPLATE=$(PACKAGE_DIR)/MonoMDK.pmdoc
 UNIVERSAL_PACKAGE_TEMPLATE_FILES=$(wildcard $(UNIVERSAL_PACKAGE_TEMPLATE)/*.xml)
 UNIVERSAL_PACKAGE_DESCRIPTOR=$(PACKAGE_DIR)/MonoMDK-$(VERSION).pmdoc
 UNIVERSAL_PACKAGE_FILE=$(subst xamarin.x86,$(BUILDER).universal,$(MONO_PACKAGE_FILE))
-UNIVERSAL_PACKAGE_PATH=$(DMG_DIR)/$(UNIVERSAL_PACKAGE_FILE)
-UNIVERSAL_INSTALLER_FILE=$(subst xamarin.x86,$(BUILDER).universal,$(MONO_INSTALLER_FILE))
-UNIVERSAL_INSTALLER_PATH=$(FILES_DIR)/$(UNIVERSAL_INSTALLER_FILE)
-
-## --------------------
-## Functions
-## --------------------
-
-# Mount the Mono dmg file
-mount-dmg= \
-	hdiutil attach $(MONO_INSTALLER_PATH)
-
-# Unmount any Mono dmg files
-unmount-dmg= \
-	for i in /Volumes/*; do \
-		if [[ "$$i" =~ .*(Mono Framework).* ]]; then \
-			hdiutil detach "$$i"; \
-		fi; \
-	done;
+UNIVERSAL_PACKAGE_PATH=$(FILES_DIR)/$(UNIVERSAL_PACKAGE_FILE)
 
 ## --------------------
 ## Targets
@@ -117,13 +96,13 @@ $(ALL_DIRS):
 	mkdir -p "$@"
 
 # Fetch the Mono files (sources and installer)
-fetch-files: prepare $(MONO_ARCHIVE_PATH) $(MONO_INSTALLER_PATH)
+fetch-files: prepare $(MONO_ARCHIVE_PATH) $(MONO_PACKAGE_PATH)
 
 $(MONO_ARCHIVE_PATH):
 	curl "$(MONO_ARCHIVE_URL)" > "$(MONO_ARCHIVE_PATH)"
 
-$(MONO_INSTALLER_PATH):
-	curl "$(MONO_INSTALLER_URL)" > "$(MONO_INSTALLER_PATH)"
+$(MONO_PACKAGE_PATH):
+	curl "$(MONO_PACKAGE_URL)" > "$(MONO_PACKAGE_PATH)"
 
 # Extract the Mono sources
 unarchive-sources: fetch-files $(MONO_SOURCE_DIR)
@@ -139,7 +118,7 @@ wipe-mono:
 build-sources: unarchive-sources $(MARKER_CONFIGURE) $(MARKER_MAKE) $(MARKER_INSTALL)
 
 $(MARKER_CONFIGURE):
-	(cd "$(MONO_SOURCE_DIR)"; ./configure --prefix "$(MONO_PREFIX)" --disable-nls --disable-mcs-build --host=x86_64-apple-darwin);
+	(cd "$(MONO_SOURCE_DIR)"; ./configure --prefix "$(MONO_PREFIX)" --host=x86_64-apple-darwin --disable-nls --disable-mcs-build);
 	touch "$(MARKER_CONFIGURE)"
 
 $(MARKER_MAKE):
@@ -162,7 +141,6 @@ copy-binaries:
 
 # Install the Mono framework
 install-mono:
-	$(call mount-dmg)
 	sudo installer -pkg "$(MONO_PACKAGE_PATH)" -target "/"
 
 # Merge the x86_64 Mach-O binaries with their i386 counterpart and copy the result back in place
@@ -177,15 +155,16 @@ merge-binaries:
 
 # Build the universal installer
 build-package:
-	$(call mount-dmg)
-
+	# Expand package to retrieve support files
+	rm -Rf "$(EXPAND_DIR)"
+	pkgutil --expand "$(MONO_PACKAGE_PATH)" "$(EXPAND_DIR)"
+	
 	# Copy package resources
-	cp -f "$(MONO_VOLUME_DIR)/uninstallMono.sh" "$(DMG_DIR)/"
 	for i in $(MONO_PACKAGE_RESOURCES); do \
-		cp -f "$(MONO_PACKAGE_PATH)/Contents/Resources/$$i" "$(PACKAGE_DIR)/$$i"; \
+		cp -f "$(EXPAND_DIR)/mono.pkg/Scripts/$$i" "$(PACKAGE_DIR)/$$i"; \
 	done;
 	mkdir -p "$(SCRIPT_DIR)"
-	cp -f "$(PACKAGE_DIR)/postflight" "$(SCRIPT_DIR)/"
+	cp -f "$(PACKAGE_DIR)/postinstall" "$(SCRIPT_DIR)/"
 	cp -f "$(PACKAGE_DIR)/whitelist.txt" "$(SCRIPT_DIR)/"
 	
 	# Link to the framework content
@@ -203,14 +182,9 @@ build-package:
 	
 	# Build the installer
 	"/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker" --verbose --doc "$(UNIVERSAL_PACKAGE_DESCRIPTOR)" -o "$(UNIVERSAL_PACKAGE_PATH)"
-	
-	# Create the disk image
-	rm -Rf "$(UNIVERSAL_INSTALLER_PATH)"
-	hdiutil create "$(UNIVERSAL_INSTALLER_PATH)" -volname "MonoFramework-$(KIND)-$(VERSION)" -fs HFS+ -srcfolder "$(DMG_DIR)"
 
 # Finish the construction
 finish:
-	$(call unmount-dmg)
 
 ## --------------------
 ## Phony Targets

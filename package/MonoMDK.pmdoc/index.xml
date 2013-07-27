@@ -1,1 +1,34 @@
-<pkmkdoc spec="1.12"><properties><title>Mono Framework MDK</title><certificate>@@CERTIFICATE@@</certificate><organization>com.ximian</organization><userSees ui="easy"/><min-target os="3"/><domain system="true"/></properties><distribution><versions min-spec="1.000000"/><scripts></scripts></distribution><contents><choice title="Mono Framework MDK" id="choice1" description="The Mono Framework MDK" starts_selected="true" starts_enabled="false" starts_hidden="false"><pkgref id="com.ximian.MonoFrameworkMDK.pkg"/></choice></contents><resources bg-scale="proportional" bg-align="bottomleft"><locale lang="en"><resource relative="true" mod="true" type="background">64bits.png</resource><resource relative="true" mod="true" type="license">License.rtf</resource><resource relative="true" mod="true" type="readme">Readme.rtf</resource><resource relative="true" mod="true" type="welcome">Welcome.rtf</resource></locale></resources><flags/><item type="file">01content.xml</item><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>
+<?xml version="1.0"?>
+<pkmkdoc spec="1.12">
+  <properties>
+    <title>Mono Framework MDK</title>
+    <certificate>@@CERTIFICATE@@</certificate>
+    <organization>com.ximian</organization>
+    <userSees ui="easy"/>
+    <min-target os="3"/>
+    <domain system="true"/>
+  </properties>
+  <distribution>
+    <versions min-spec="1.000000"/>
+    <scripts/>
+  </distribution>
+  <contents>
+    <choice title="Mono Framework MDK" id="choice1" description="The Mono Framework MDK" starts_selected="true" starts_enabled="false" starts_hidden="false">
+      <pkgref id="com.ximian.MonoFrameworkMDK.pkg"/>
+    </choice>
+  </contents>
+  <resources bg-scale="proportional" bg-align="bottomleft">
+    <locale lang="en">
+      <resource relative="true" mod="true" type="background">64bits.png</resource>
+      <resource relative="true" mod="true" type="license">License.rtf</resource>
+      <resource relative="true" mod="true" type="readme">ReadMe.rtf</resource>
+      <resource relative="true" mod="true" type="welcome">Welcome.rtf</resource>
+    </locale>
+  </resources>
+  <flags/>
+  <item type="file">01content.xml</item>
+  <mod>properties.title</mod>
+  <mod>properties.customizeOption</mod>
+  <mod>properties.anywhereDomain</mod>
+  <mod>properties.systemDomain</mod>
+</pkmkdoc>
